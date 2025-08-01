@@ -74,78 +74,306 @@ const useAuth = () => {
 // Auth Modal Components
 const AuthModal = ({ isOpen, onClose, type }) => {
   const { login } = useAuth();
+  const [currentStep, setCurrentStep] = useState('form'); // 'form', 'verification', 'success'
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    login: '',
+    verificationCode: ''
+  });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const resetModal = () => {
+    setCurrentStep('form');
+    setFormData({
+      username: '',
+      email: '',
+      password: '',
+      login: '',
+      verificationCode: ''
+    });
+    setError('');
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash.includes('session_id=')) {
-        const sessionId = hash.split('session_id=')[1];
-        handleAuthCallback(sessionId);
-      }
-    };
+    if (isOpen) {
+      resetModal();
+    }
+  }, [isOpen, type]);
 
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Check on mount
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError('');
+  };
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const handleAuthCallback = async (sessionId) => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
-      const response = await axios.post(`${API}/auth/profile`, {
-        session_id: sessionId
+      const response = await axios.post(`${API}/auth/register`, {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
       });
-      
-      login(response.data.session_token, response.data.user);
-      window.location.hash = '';
-      onClose();
+
+      if (response.data.requires_verification) {
+        setCurrentStep('verification');
+      } else {
+        // Admin account - direct login
+        setCurrentStep('success');
+        setTimeout(() => {
+          onClose();
+          window.location.reload(); // Reload to update auth state
+        }, 2000);
+      }
     } catch (error) {
-      console.error('Auth error:', error);
-      alert('Giriş yapılırken hata oluştu. Lütfen tekrar deneyiniz.');
+      setError(error.response?.data?.detail || 'Kayıt sırasında bir hata oluştu.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAuthRedirect = () => {
-    const redirectUrl = window.location.origin + '/profile';
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  const handleVerification = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${API}/auth/verify-email`, {
+        email: formData.email,
+        verification_code: formData.verificationCode
+      });
+
+      login(response.data.token, response.data.user);
+      setCurrentStep('success');
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    } catch (error) {
+      setError(error.response?.data?.detail || 'Doğrulama sırasında bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${API}/auth/login`, {
+        login: formData.login,
+        password: formData.password
+      });
+
+      login(response.data.token, response.data.user);
+      onClose();
+    } catch (error) {
+      setError(error.response?.data?.detail || 'Giriş sırasında bir hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendVerification = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${API}/auth/resend-verification`, {
+        email: formData.email
+      });
+      setError('Doğrulama kodu tekrar gönderildi!');
+    } catch (error) {
+      setError(error.response?.data?.detail || 'E-posta gönderilirken hata oluştu.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+      <div className="bg-gray-900 rounded-lg p-8 max-w-md w-full mx-4 border border-gray-700">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {type === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
+          <h2 className="text-2xl font-bold text-white">
+            {type === 'login' ? 'Giriş Yap' : 
+             currentStep === 'verification' ? 'E-posta Doğrulama' :
+             currentStep === 'success' ? 'Başarılı!' :
+             'Kayıt Ol'}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="space-y-4">
-          <p className="text-gray-600 text-center">
-            {type === 'login' 
-              ? 'ÇizgiHub\'a giriş yapmak için aşağıdaki butona tıklayın.'
-              : 'ÇizgiHub\'a kayıt olmak için aşağıdaki butona tıklayın.'
-            }
-          </p>
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/50 border border-red-500 rounded-lg">
+            <p className="text-red-200 text-sm">{error}</p>
+          </div>
+        )}
 
-          <button
-            onClick={handleAuthRedirect}
-            disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50"
-          >
-            {loading ? 'Yükleniyor...' : (type === 'login' ? 'Giriş Yap' : 'Kayıt Ol')}
-          </button>
-        </div>
+        {/* Registration Form */}
+        {type === 'register' && currentStep === 'form' && (
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                Kullanıcı Adı
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-gray-400 focus:outline-none"
+                placeholder="kullaniciadi"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                E-posta
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-gray-400 focus:outline-none"
+                placeholder="ornek@email.com"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                Şifre
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-gray-400 focus:outline-none"
+                placeholder="En az 6 karakter"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-gray-700 to-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 hover:from-gray-600 hover:to-gray-500 disabled:opacity-50"
+            >
+              {loading ? 'Kaydediliyor...' : 'Kayıt Ol'}
+            </button>
+          </form>
+        )}
+
+        {/* Email Verification */}
+        {currentStep === 'verification' && (
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-4xl mb-4">📧</div>
+              <p className="text-gray-300 mb-4">
+                <span className="font-semibold">{formData.email}</span> adresine 
+                6 haneli doğrulama kodu gönderildi.
+              </p>
+            </div>
+            <form onSubmit={handleVerification} className="space-y-4">
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">
+                  Doğrulama Kodu
+                </label>
+                <input
+                  type="text"
+                  name="verificationCode"
+                  value={formData.verificationCode}
+                  onChange={handleInputChange}
+                  required
+                  maxLength={6}
+                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-center text-2xl tracking-widest focus:border-gray-400 focus:outline-none"
+                  placeholder="123456"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-gray-700 to-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 hover:from-gray-600 hover:to-gray-500 disabled:opacity-50"
+              >
+                {loading ? 'Doğrulanıyor...' : 'Doğrula'}
+              </button>
+              <button
+                type="button"
+                onClick={resendVerification}
+                disabled={loading}
+                className="w-full text-gray-400 hover:text-white text-sm py-2 disabled:opacity-50"
+              >
+                Kodu Tekrar Gönder
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Login Form */}
+        {type === 'login' && currentStep === 'form' && (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                Kullanıcı Adı veya E-posta
+              </label>
+              <input
+                type="text"
+                name="login"
+                value={formData.login}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-gray-400 focus:outline-none"
+                placeholder="kullaniciadi veya ornek@email.com"
+              />
+            </div>
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                Şifre
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-gray-400 focus:outline-none"
+                placeholder="Şifreniz"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-gray-700 to-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-200 hover:from-gray-600 hover:to-gray-500 disabled:opacity-50"
+            >
+              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            </button>
+          </form>
+        )}
+
+        {/* Success Message */}
+        {currentStep === 'success' && (
+          <div className="text-center space-y-4">
+            <div className="text-6xl mb-4">🎉</div>
+            <h3 className="text-xl font-bold text-white mb-2">Başarılı!</h3>
+            <p className="text-gray-300">
+              {type === 'register' ? 'Hesabınız oluşturuldu ve doğrulandı.' : 'Giriş işlemi başarılı.'}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
