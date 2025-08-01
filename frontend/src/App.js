@@ -170,27 +170,27 @@ const LandingPage = () => {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 flex justify-between items-center p-6 backdrop-blur-sm bg-white/10 border-b border-white/20">
+      <header className="relative z-10 flex justify-between items-center p-6 backdrop-blur-sm bg-black/20 border-b border-gray-700/30">
         <div className="flex items-center">
           <div className="relative">
-            <h1 className="text-3xl font-bold text-white logo-glow">ÇizgiHub</h1>
-            <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-25 animate-pulse"></div>
+            <h1 className="text-3xl font-bold text-white logo-glow-dark">ÇizgiHub</h1>
+            <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-400 rounded-lg blur opacity-25 animate-pulse"></div>
           </div>
         </div>
         <div className="space-x-4 flex items-center">
           <button
             onClick={() => openAuthModal('login')}
-            className="group relative overflow-hidden bg-transparent border-2 border-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:border-white hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm"
+            className="group relative overflow-hidden bg-transparent border-2 border-gray-500 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:border-gray-300 hover:shadow-lg hover:shadow-gray-400/25 backdrop-blur-sm"
           >
             <span className="relative z-10">Giriş Yap</span>
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gray-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
           </button>
           <button
             onClick={() => openAuthModal('register')}
-            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-pink-600 hover:to-violet-600 hover:shadow-xl hover:shadow-violet-500/50 hover:scale-105"
+            className="group relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-gray-600 hover:to-gray-500 hover:shadow-xl hover:shadow-gray-500/50 hover:scale-105"
           >
             <span className="relative z-10">Kayıt Ol</span>
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
           </button>
         </div>
       </header>
