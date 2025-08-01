@@ -131,13 +131,22 @@ body {
   animation-delay: 4s;
 }
 
-/* Logo Glow Effect */
-.logo-glow {
+/* Logo Glow Effect - Darker Version */
+.logo-glow-dark {
   text-shadow: 
-    0 0 10px rgba(168, 85, 247, 0.5),
-    0 0 20px rgba(168, 85, 247, 0.3),
-    0 0 30px rgba(236, 72, 153, 0.2);
-  animation: pulse-glow 2s ease-in-out infinite;
+    0 0 10px rgba(107, 114, 128, 0.5),
+    0 0 20px rgba(107, 114, 128, 0.3),
+    0 0 30px rgba(156, 163, 175, 0.2);
+  animation: pulse-glow-dark 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-dark {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(107, 114, 128, 0.4);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(107, 114, 128, 0.8), 0 0 60px rgba(156, 163, 175, 0.6);
+  }
 }
 
 /* Glass Morphism Effects */
