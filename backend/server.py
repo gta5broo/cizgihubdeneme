@@ -243,62 +243,222 @@ async def get_admin_user(user: User = Depends(get_current_user)):
     return user
 
 # Auth endpoints
-@api_router.post("/auth/profile")
-async def auth_profile(auth_request: AuthRequest, request: Request):
+@api_router.post("/auth/register")
+async def register_user(user_data: UserRegistration):
+    """Register new user"""
     try:
-        # Call Emergent auth API
-        headers = {"X-Session-ID": auth_request.session_id}
-        response = requests.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers=headers
+        # Validate input
+        if not is_valid_username(user_data.username):
+            raise HTTPException(status_code=400, detail="Geçersiz kullanıcı adı. 3-20 karakter, sadece harf, rakam, _ ve - kullanılabilir.")
+        
+        if not is_valid_password(user_data.password):
+            raise HTTPException(status_code=400, detail="Şifre en az 6 karakter olmalıdır.")
+        
+        # Check if username or email already exists
+        existing_user = await db.users.find_one({
+            "$or": [
+                {"username": user_data.username.lower()},
+                {"email": user_data.email.lower()}
+            ]
+        })
+        
+        if existing_user:
+            if existing_user["username"].lower() == user_data.username.lower():
+                raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten kullanılıyor.")
+            else:
+                raise HTTPException(status_code=400, detail="Bu e-posta adresi zaten kayıtlı.")
+        
+        # Generate verification code
+        verification_code = generate_verification_code()
+        
+        # Hash password
+        password_hash = hash_password(user_data.password)
+        
+        # Check if this is admin account
+        is_admin = user_data.email.lower() == "admin@cizgihub.com.tr"
+        
+        # Create user
+        new_user = {
+            "id": str(uuid.uuid4()),
+            "username": user_data.username.lower(),
+            "email": user_data.email.lower(),
+            "password_hash": password_hash,
+            "is_admin": is_admin,
+            "is_verified": is_admin,  # Admin is automatically verified
+            "verification_code": verification_code if not is_admin else None,
+            "verification_code_expires": datetime.utcnow() + timedelta(minutes=15) if not is_admin else None,
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.users.insert_one(new_user)
+        
+        # Send verification email (except for admin)
+        if not is_admin:
+            email_sent = send_verification_email(user_data.email, verification_code)
+            if not email_sent:
+                # Still allow registration but notify about email issue
+                logging.warning(f"Failed to send verification email to {user_data.email}")
+        
+        return {
+            "message": "Hesap oluşturuldu. E-posta adresinizi kontrol ederek doğrulama kodunu girin." if not is_admin else "Admin hesabı oluşturuldu.",
+            "user_id": new_user["id"],
+            "is_admin": is_admin,
+            "requires_verification": not is_admin
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Registration error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Kayıt sırasında bir hata oluştu.")
+
+@api_router.post("/auth/verify-email")
+async def verify_email(verification_data: EmailVerification):
+    """Verify email with code"""
+    try:
+        user = await db.users.find_one({"email": verification_data.email.lower()})
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+        
+        if user.get("is_verified", False):
+            raise HTTPException(status_code=400, detail="E-posta zaten doğrulanmış.")
+        
+        if (not user.get("verification_code") or 
+            user["verification_code"] != verification_data.verification_code):
+            raise HTTPException(status_code=400, detail="Geçersiz doğrulama kodu.")
+        
+        if (user.get("verification_code_expires") and 
+            user["verification_code_expires"] < datetime.utcnow()):
+            raise HTTPException(status_code=400, detail="Doğrulama kodu süresi dolmuş.")
+        
+        # Verify user
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {"is_verified": True},
+                "$unset": {"verification_code": "", "verification_code_expires": ""}
+            }
         )
         
-        if response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Geçersiz oturum kimliği")
+        # Generate JWT token
+        token = create_jwt_token(user["id"])
         
-        user_data = response.json()
-        
-        # Check if user exists
-        existing_user = await db.users.find_one({"email": user_data["email"]})
-        
-        if not existing_user:
-            # Create new user - check if admin
-            is_admin = user_data["email"] == "admin@cizgihub.com"
-            user = User(
-                email=user_data["email"],
-                name=user_data["name"],
-                picture=user_data.get("picture"),
-                is_admin=is_admin
-            )
-            await db.users.insert_one(user.dict())
-            user_id = user.id
-        else:
-            user_id = existing_user["id"]
-        
-        # Create session
-        session_token = secrets.token_urlsafe(32)
-        session = {
-            "session_token": session_token,
-            "user_id": user_id,
-            "expires_at": datetime.utcnow() + timedelta(days=7)
+        return {
+            "message": "E-posta başarıyla doğrulandı.",
+            "token": token,
+            "user": {
+                "id": user["id"],
+                "username": user["username"],
+                "email": user["email"],
+                "is_admin": user.get("is_admin", False)
+            }
         }
-        await db.sessions.insert_one(session)
         
-        return {"session_token": session_token, "user": user_data}
-        
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Kimlik doğrulama hatası: {str(e)}")
+        logging.error(f"Email verification error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Doğrulama sırasında bir hata oluştu.")
+
+@api_router.post("/auth/resend-verification")
+async def resend_verification(resend_data: ResendVerification):
+    """Resend verification email"""
+    try:
+        user = await db.users.find_one({"email": resend_data.email.lower()})
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı.")
+        
+        if user.get("is_verified", False):
+            raise HTTPException(status_code=400, detail="E-posta zaten doğrulanmış.")
+        
+        # Generate new verification code
+        verification_code = generate_verification_code()
+        
+        # Update user with new code
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {
+                    "verification_code": verification_code,
+                    "verification_code_expires": datetime.utcnow() + timedelta(minutes=15)
+                }
+            }
+        )
+        
+        # Send email
+        email_sent = send_verification_email(resend_data.email, verification_code)
+        
+        if not email_sent:
+            raise HTTPException(status_code=500, detail="E-posta gönderilirken hata oluştu.")
+        
+        return {"message": "Doğrulama kodu tekrar gönderildi."}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Resend verification error: {str(e)}")
+        raise HTTPException(status_code=500, detail="E-posta gönderilirken hata oluştu.")
+
+@api_router.post("/auth/login")
+async def login_user(login_data: UserLogin):
+    """Login user"""
+    try:
+        # Find user by username or email
+        user = await db.users.find_one({
+            "$or": [
+                {"username": login_data.login.lower()},
+                {"email": login_data.login.lower()}
+            ]
+        })
+        
+        if not user:
+            raise HTTPException(status_code=401, detail="Geçersiz kullanıcı adı/e-posta veya şifre.")
+        
+        # Verify password
+        if not verify_password(login_data.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Geçersiz kullanıcı adı/e-posta veya şifre.")
+        
+        # Check if email is verified
+        if not user.get("is_verified", False):
+            raise HTTPException(status_code=401, detail="E-posta adresiniz doğrulanmamış. Lütfen e-postanızı kontrol edin.")
+        
+        # Generate JWT token
+        token = create_jwt_token(user["id"])
+        
+        return {
+            "message": "Başarıyla giriş yapıldı.",
+            "token": token,
+            "user": {
+                "id": user["id"],
+                "username": user["username"],
+                "email": user["email"],
+                "is_admin": user.get("is_admin", False)
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Giriş sırasında bir hata oluştu.")
 
 @api_router.get("/auth/me")
 async def get_me(user: User = Depends(get_current_user)):
-    return user
+    """Get current user info"""
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "is_admin": user.is_admin,
+        "is_verified": user.is_verified
+    }
 
 @api_router.post("/auth/logout")
-async def logout(request: Request):
-    session_token = request.cookies.get("session_token")
-    if session_token:
-        await db.sessions.delete_one({"session_token": session_token})
-    return {"message": "Başarıyla çıkış yapıldı"}
+async def logout():
+    """Logout (client-side token removal)"""
+    return {"message": "Başarıyla çıkış yapıldı."}
 
 # Content endpoints
 @api_router.get("/shows")
