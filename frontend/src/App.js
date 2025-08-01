@@ -203,27 +203,27 @@ const LandingPage = () => {
             style={{ transform: `translateY(${scrollY * 0.2}px)` }}
           >
             <div className="mb-8">
-              <div className="inline-block p-3 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 mb-6">
-                <span className="text-white text-sm font-medium">🎬 Türkiye'nin Yeni Nesil Streaming Platformu</span>
+              <div className="inline-block p-3 rounded-full bg-gradient-to-r from-gray-700/50 to-gray-600/50 backdrop-blur-sm border border-gray-500/30 mb-6">
+                <span className="text-gray-300 text-sm font-medium">🎬 Türkiye'nin Yeni Nesil Streaming Platformu</span>
               </div>
             </div>
             
             <h2 className="text-6xl md:text-8xl font-extrabold text-white mb-8 leading-tight">
               <span className="block mb-4">Hayal Gücünün</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-violet-400 to-indigo-400 animate-gradient-x">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-200 to-white animate-gradient-x">
                 Sınırsız Dünyası
               </span>
             </h2>
             
-            <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
               Premium çizgi filmler ve animeler, kristal berraklığında görüntü kalitesi, 
-              Türkçe altyazı desteği ile <span className="text-pink-400 font-semibold">tamamen reklamsız</span> deneyim.
+              Türkçe altyazı desteği ile <span className="text-gray-200 font-semibold">tamamen reklamsız</span> deneyim.
             </p>
             
             <div className="space-y-4 md:space-y-0 md:space-x-6 md:flex md:justify-center">
               <button
                 onClick={() => openAuthModal('register')}
-                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl overflow-hidden transition-all duration-300 hover:from-pink-600 hover:to-violet-600 hover:shadow-2xl hover:shadow-violet-500/50 hover:scale-105"
+                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl overflow-hidden transition-all duration-300 hover:from-gray-600 hover:to-gray-500 hover:shadow-2xl hover:shadow-gray-600/50 hover:scale-105"
               >
                 <span className="relative z-10 flex items-center">
                   Hemen Başla
@@ -231,11 +231,11 @@ const LandingPage = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
               
               <button
-                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:shadow-xl"
+                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-black/30 backdrop-blur-sm border-2 border-gray-600 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-black/50 hover:border-gray-400 hover:shadow-xl"
               >
                 <span className="relative z-10 flex items-center">
                   Önizleme İzle
