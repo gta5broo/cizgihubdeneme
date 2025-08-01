@@ -284,55 +284,165 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="px-6 py-20 bg-black bg-opacity-50">
+      {/* Premium Features Section */}
+      <section className="relative px-6 py-32 bg-gradient-to-r from-indigo-950/90 to-purple-950/90 backdrop-blur-sm border-y border-white/10">
         <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-bold text-white text-center mb-16">Neden ÇizgiHub?</h3>
+          <div className="text-center mb-20">
+            <div className="inline-block p-3 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 mb-6">
+              <span className="text-white text-sm font-medium">✨ Premium Özellikler</span>
+            </div>
+            <h3 className="text-5xl font-extrabold text-white mb-6">
+              Neden 
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400"> ÇizgiHub?</span>
+            </h3>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Teknoloji ve eğlenceyi bir araya getiren benzersiz deneyim
+            </p>
+          </div>
+          
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">🎬</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Reklamsız İzleme</h4>
-              <p className="text-gray-300">Hiçbir reklamla bölünmeden sevdiğiniz içerikleri izleyin.</p>
-            </div>
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">🎯</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Full HD Kalite</h4>
-              <p className="text-gray-300">Tüm içerikler Full HD kalitesinde sunuluyor.</p>
-            </div>
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">💬</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Türkçe Altyazı</h4>
-              <p className="text-gray-300">Tüm içerikler Türkçe altyazıyla destekleniyor.</p>
-            </div>
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">⭐</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Kullanıcı Puanları</h4>
-              <p className="text-gray-300">Diğer kullanıcıların puanlarına göre içerik keşfedin.</p>
-            </div>
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">🛡️</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Spoiler Koruması</h4>
-              <p className="text-gray-300">Spoiler içeren yorumlar gizlenerek gösteriliyor.</p>
-            </div>
-            <div className="text-center p-6 bg-purple-800 bg-opacity-50 rounded-lg">
-              <div className="text-5xl mb-4">🎭</div>
-              <h4 className="text-2xl font-bold text-white mb-4">Çeşitli Kategoriler</h4>
-              <p className="text-gray-300">Anime, Aksiyon, Komedi, Korku ve daha fazlası.</p>
-            </div>
+            {[
+              { icon: "🎬", title: "Reklamsız İzleme", desc: "Hiçbir reklamla bölünmeden sevdiğiniz içerikleri kesintisiz izleyin.", gradient: "from-pink-500 to-rose-500" },
+              { icon: "🎯", title: "4K Ultra HD", desc: "Kristal berraklığında görüntü kalitesi ile sinema deneyimi yaşayın.", gradient: "from-violet-500 to-purple-500" },
+              { icon: "💬", title: "Türkçe Altyazı", desc: "Profesyonel çeviri ile tüm içerikler Türkçe altyazı desteğiyle.", gradient: "from-indigo-500 to-blue-500" },
+              { icon: "⭐", title: "Akıllı Öneriler", desc: "AI destekli öneri sistemi ile size özel içerik keşfetme deneyimi.", gradient: "from-pink-500 to-violet-500" },
+              { icon: "🛡️", title: "Spoiler Koruması", desc: "Gelişmiş spoiler filtreleme sistemi ile güvenli yorum deneyimi.", gradient: "from-violet-500 to-indigo-500" },
+              { icon: "🌟", title: "Çoklu Dil Seçeneği", desc: "İngilizce, Japonca ve Türkçe ses seçenekleri mevcut.", gradient: "from-indigo-500 to-purple-500" }
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden p-8 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 hover:border-white/30 transition-all duration-500 hover:scale-105 animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.gradient} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <span className="text-3xl">{feature.icon}</span>
+                  </div>
+                  <h4 className="text-2xl font-bold text-white mb-4 group-hover:text-pink-300 transition-colors duration-300">
+                    {feature.title}
+                  </h4>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                    {feature.desc}
+                  </p>
+                </div>
+                <div className={`absolute -inset-1 bg-gradient-to-r ${feature.gradient} rounded-3xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="px-6 py-20">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-4xl font-bold text-white text-center mb-16">Popüler Kategoriler</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['Anime', 'Aksiyon', 'Komedi', 'Bilim Kurgu', 'Korku', 'Spor', 'Gerilim', 'Çocuk'].map((category) => (
-              <div key={category} className="bg-gradient-to-r from-pink-500 to-violet-500 p-4 rounded-lg text-center cursor-pointer hover:scale-105 transition duration-200">
-                <span className="text-white font-bold text-lg">{category}</span>
+      {/* Interactive Stats Section */}
+      <section className="relative px-6 py-20 bg-gradient-to-br from-purple-950/80 to-indigo-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { number: "10K+", label: "Aktif Kullanıcı", icon: "👥" },
+              { number: "500+", label: "Premium İçerik", icon: "🎬" },
+              { number: "99.9%", label: "Uptime Garantisi", icon: "⚡" },
+              { number: "7/24", label: "Teknik Destek", icon: "🛠️" }
+            ].map((stat, index) => (
+              <div key={index} className="group cursor-pointer">
+                <div className="relative p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/30 transition-all duration-300 hover:scale-105">
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                    {stat.icon}
+                  </div>
+                  <div className="text-4xl font-bold text-white mb-2 group-hover:text-pink-400 transition-colors duration-300">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                    {stat.label}
+                  </div>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Modern Categories Grid */}
+      <section className="relative px-6 py-32">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <div className="inline-block p-3 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 mb-6">
+              <span className="text-white text-sm font-medium">🎭 İçerik Kategorileri</span>
+            </div>
+            <h3 className="text-5xl font-extrabold text-white mb-6">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400">
+                Sınırsız Kategori
+              </span>
+              <br />Sınırsız Eğlence
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { name: 'Anime', emoji: '🎌', color: 'from-red-500 to-pink-500' },
+              { name: 'Aksiyon', emoji: '⚡', color: 'from-orange-500 to-red-500' },
+              { name: 'Komedi', emoji: '😂', color: 'from-yellow-500 to-orange-500' },
+              { name: 'Bilim Kurgu', emoji: '🚀', color: 'from-blue-500 to-indigo-500' },
+              { name: 'Korku', emoji: '👻', color: 'from-purple-500 to-indigo-500' },
+              { name: 'Spor', emoji: '⚽', color: 'from-green-500 to-blue-500' },
+              { name: 'Gerilim', emoji: '🔥', color: 'from-red-500 to-purple-500' },
+              { name: 'Çocuk', emoji: '🧸', color: 'from-pink-500 to-violet-500' }
+            ].map((category, index) => (
+              <div
+                key={category.name}
+                className="group relative overflow-hidden p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/30 cursor-pointer transition-all duration-500 hover:scale-105 animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                <div className="relative z-10 text-center">
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                    {category.emoji}
+                  </div>
+                  <span className="text-white font-bold text-lg group-hover:text-pink-300 transition-colors duration-300">
+                    {category.name}
+                  </span>
+                </div>
+                <div className={`absolute -inset-1 bg-gradient-to-r ${category.color} rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="relative px-6 py-32 bg-gradient-to-r from-pink-900/30 to-violet-900/30 backdrop-blur-sm border-t border-white/10">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="text-6xl mb-6">🎬</div>
+            <h3 className="text-5xl font-extrabold text-white mb-6">
+              Hayal Dünyasına
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400">
+                Adım Atın
+              </span>
+            </h3>
+            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+              Milyonlarca saatlik premium içerik, reklamsız deneyim ve Türkçe altyazı ile 
+              eğlence dünyasının kapılarını aralayın.
+            </p>
+          </div>
+          
+          <div className="space-y-6 md:space-y-0 md:space-x-6 md:flex md:justify-center">
+            <button
+              onClick={() => openAuthModal('register')}
+              className="group relative inline-flex items-center justify-center px-12 py-6 text-xl font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl overflow-hidden transition-all duration-300 hover:from-pink-600 hover:to-violet-600 hover:shadow-2xl hover:shadow-violet-500/50 hover:scale-105"
+            >
+              <span className="relative z-10 flex items-center">
+                Ücretsiz Hesap Oluştur
+                <svg className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
+          
+          <div className="mt-8 text-gray-400 text-sm">
+            ✨ Kredi kartı gerektirmez • 🚫 Reklam yok • 📱 Tüm cihazlarda çalışır
           </div>
         </div>
       </section>
