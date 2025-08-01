@@ -259,7 +259,7 @@ const LandingPage = () => {
             ].map((image, index) => (
               <div
                 key={index}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 hover:border-white/40 transition-all duration-500 animate-fade-in-up"
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800/30 to-gray-700/30 backdrop-blur-sm border border-gray-600/30 hover:border-gray-500/50 transition-all duration-500 animate-fade-in-up"
                 style={{ animationDelay: image.delay }}
               >
                 <img 
@@ -267,12 +267,12 @@ const LandingPage = () => {
                   alt={image.alt}
                   className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-4 left-4 right-4">
                     <p className="text-white font-semibold text-sm">{image.alt}</p>
                   </div>
                 </div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
               </div>
             ))}
           </div>
