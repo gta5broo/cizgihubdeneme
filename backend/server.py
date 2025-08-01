@@ -134,6 +134,94 @@ class CommentCreate(BaseModel):
     content: str
     is_spoiler: bool = False
 
+# Utility Functions
+def hash_password(password: str) -> str:
+    """Hash a password"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def generate_verification_code() -> str:
+    """Generate a 6-digit verification code"""
+    return str(random.randint(100000, 999999))
+
+def create_jwt_token(user_id: str) -> str:
+    """Create JWT token for user"""
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+    }
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
+def verify_jwt_token(token: str) -> str:
+    """Verify JWT token and return user_id"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        return payload["user_id"]
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token süresi doldu")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Geçersiz token")
+
+def send_verification_email(email: str, verification_code: str) -> bool:
+    """Send verification email using Gmail SMTP"""
+    try:
+        gmail_user = os.environ.get('GMAIL_USER')
+        gmail_password = os.environ.get('GMAIL_APP_PASSWORD')
+        
+        if not gmail_user or not gmail_password:
+            logging.error("Gmail credentials not configured")
+            return False
+            
+        msg = MimeMultipart()
+        msg['From'] = gmail_user
+        msg['To'] = email
+        msg['Subject'] = "ÇizgiHub - E-posta Doğrulama"
+        
+        body = f"""
+        Merhaba!
+        
+        ÇizgiHub hesabınızı doğrulamak için aşağıdaki kodu kullanın:
+        
+        Doğrulama Kodu: {verification_code}
+        
+        Bu kod 15 dakika içinde geçerliliğini yitirecektir.
+        
+        Bu e-postayı siz talep etmediyseniz, lütfen görmezden gelin.
+        
+        ÇizgiHub Ekibi
+        """
+        
+        msg.attach(MimeText(body, 'plain', 'utf-8'))
+        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(gmail_user, gmail_password)
+        text = msg.as_string()
+        server.sendmail(gmail_user, email, text)
+        server.quit()
+        
+        logging.info(f"Verification email sent to {email}")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to send email: {str(e)}")
+        return False
+
+def is_valid_username(username: str) -> bool:
+    """Validate username format"""
+    if len(username) < 3 or len(username) > 20:
+        return False
+    return re.match("^[a-zA-Z0-9_-]+$", username) is not None
+
+def is_valid_password(password: str) -> bool:
+    """Validate password strength"""
+    if len(password) < 6:
+        return False
+    return True
+
 # Auth middleware
 async def get_current_user(request: Request):
     session_token = request.cookies.get("session_token")
