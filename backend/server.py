@@ -53,11 +53,38 @@ api_router = APIRouter(prefix="/api")
 # Models
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    email: str
-    name: str
-    picture: Optional[str] = None
+    username: str
+    email: EmailStr
+    password_hash: str = Field(exclude=True)  # Exclude from responses
     is_admin: bool = False
+    is_verified: bool = False
+    verification_code: Optional[str] = None
+    verification_code_expires: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class UserRegistration(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    login: str  # Can be username or email
+    password: str
+
+class EmailVerification(BaseModel):
+    email: EmailStr
+    verification_code: str
+
+class ResendVerification(BaseModel):
+    email: EmailStr
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    email: EmailStr
+    reset_code: str
+    new_password: str
 
 class Show(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
