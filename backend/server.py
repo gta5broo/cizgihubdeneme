@@ -223,21 +223,24 @@ def is_valid_password(password: str) -> bool:
     return True
 
 # Auth middleware
-async def get_current_user(request: Request):
-    session_token = request.cookies.get("session_token")
-    if not session_token:
-        raise HTTPException(status_code=401, detail="Oturum bulunamadı")
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current user from JWT token"""
+    user_id = verify_jwt_token(credentials.credentials)
     
-    # Verify session token exists in database
-    session = await db.sessions.find_one({"session_token": session_token})
-    if not session or session["expires_at"] < datetime.utcnow():
-        raise HTTPException(status_code=401, detail="Geçersiz oturum")
-    
-    user = await db.users.find_one({"id": session["user_id"]})
+    user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=401, detail="Kullanıcı bulunamadı")
     
+    if not user.get("is_verified", False):
+        raise HTTPException(status_code=401, detail="E-posta doğrulanmamış")
+    
     return User(**user)
+
+async def get_admin_user(user: User = Depends(get_current_user)):
+    """Ensure user is admin"""
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Yetki yok")
+    return user
 
 # Auth endpoints
 @api_router.post("/auth/profile")
