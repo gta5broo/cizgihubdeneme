@@ -142,6 +142,13 @@ const AuthModal = ({ isOpen, onClose, type }) => {
 // Landing Page Component
 const LandingPage = () => {
   const [authModal, setAuthModal] = useState({ isOpen: false, type: 'login' });
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const openAuthModal = (type) => {
     setAuthModal({ isOpen: true, type });
@@ -152,72 +159,128 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-900 to-violet-950 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="floating-shape shape-1"></div>
+        <div className="floating-shape shape-2"></div>
+        <div className="floating-shape shape-3"></div>
+        <div className="floating-shape shape-4"></div>
+        <div className="floating-shape shape-5"></div>
+      </div>
+
       {/* Header */}
-      <header className="relative z-10 flex justify-between items-center p-6">
+      <header className="relative z-10 flex justify-between items-center p-6 backdrop-blur-sm bg-white/10 border-b border-white/20">
         <div className="flex items-center">
-          <h1 className="text-3xl font-bold text-white">ÇizgiHub</h1>
+          <div className="relative">
+            <h1 className="text-3xl font-bold text-white logo-glow">ÇizgiHub</h1>
+            <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-25 animate-pulse"></div>
+          </div>
         </div>
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
           <button
             onClick={() => openAuthModal('login')}
-            className="bg-transparent border-2 border-white text-white px-6 py-2 rounded-lg hover:bg-white hover:text-purple-900 transition duration-200"
+            className="group relative overflow-hidden bg-transparent border-2 border-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:border-white hover:shadow-lg hover:shadow-white/25 backdrop-blur-sm"
           >
-            Giriş Yap
+            <span className="relative z-10">Giriş Yap</span>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
           </button>
           <button
             onClick={() => openAuthModal('register')}
-            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
+            className="group relative overflow-hidden bg-gradient-to-r from-pink-500 to-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:from-pink-600 hover:to-violet-600 hover:shadow-xl hover:shadow-violet-500/50 hover:scale-105"
           >
-            Kayıt Ol
+            <span className="relative z-10">Kayıt Ol</span>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
           </button>
         </div>
       </header>
 
       {/* Hero Section */}
       <section className="relative px-6 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Türkiye'nin En Büyük
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">
-              {' '}Çizgi Film{' '}
-            </span>
-            Platformu
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Reklamsız akış, Full HD kalite, Türkçe altyazı desteği ve daha fazlasıyla 
-            sevdiğiniz çizgi filmleri ve animeleri izleyin.
-          </p>
-          <button
-            onClick={() => openAuthModal('register')}
-            className="bg-gradient-to-r from-pink-500 to-violet-500 text-white text-xl px-8 py-4 rounded-lg hover:from-pink-600 hover:to-violet-600 transition duration-200"
+        <div className="max-w-6xl mx-auto">
+          <div 
+            className="transform transition-transform duration-1000 ease-out"
+            style={{ transform: `translateY(${scrollY * 0.2}px)` }}
           >
-            Hemen Başla
-          </button>
+            <div className="mb-8">
+              <div className="inline-block p-3 rounded-full bg-gradient-to-r from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 mb-6">
+                <span className="text-white text-sm font-medium">🎬 Türkiye'nin Yeni Nesil Streaming Platformu</span>
+              </div>
+            </div>
+            
+            <h2 className="text-6xl md:text-8xl font-extrabold text-white mb-8 leading-tight">
+              <span className="block mb-4">Hayal Gücünün</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-violet-400 to-indigo-400 animate-gradient-x">
+                Sınırsız Dünyası
+              </span>
+            </h2>
+            
+            <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Premium çizgi filmler ve animeler, kristal berraklığında görüntü kalitesi, 
+              Türkçe altyazı desteği ile <span className="text-pink-400 font-semibold">tamamen reklamsız</span> deneyim.
+            </p>
+            
+            <div className="space-y-4 md:space-y-0 md:space-x-6 md:flex md:justify-center">
+              <button
+                onClick={() => openAuthModal('register')}
+                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl overflow-hidden transition-all duration-300 hover:from-pink-600 hover:to-violet-600 hover:shadow-2xl hover:shadow-violet-500/50 hover:scale-105"
+              >
+                <span className="relative z-10 flex items-center">
+                  Hemen Başla
+                  <svg className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+              
+              <button
+                className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-white bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/20 hover:border-white/50 hover:shadow-xl"
+              >
+                <span className="relative z-10 flex items-center">
+                  Önizleme İzle
+                  <svg className="ml-2 w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Hero Images */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          <img 
-            src="https://images.unsplash.com/photo-1613336116818-b83da0180161" 
-            alt="Çizgi Film Karakterleri"
-            className="rounded-lg shadow-lg hover:scale-105 transition duration-200"
-          />
-          <img 
-            src="https://images.unsplash.com/photo-1668119064420-fb738fb05e32" 
-            alt="Anime Karakterleri"
-            className="rounded-lg shadow-lg hover:scale-105 transition duration-200"
-          />
-          <img 
-            src="https://images.unsplash.com/flagged/photo-1572491259205-506c425b45c3" 
-            alt="Anime Kız"
-            className="rounded-lg shadow-lg hover:scale-105 transition duration-200"
-          />
-          <img 
-            src="https://images.unsplash.com/photo-1668119065964-8e78fddc5dfe" 
-            alt="Koleksiyon"
-            className="rounded-lg shadow-lg hover:scale-105 transition duration-200"
-          />
+        {/* Hero Images with Advanced Animations */}
+        <div className="mt-20 relative">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {[
+              { src: "https://images.unsplash.com/photo-1613336116818-b83da0180161", alt: "Çizgi Film Karakterleri", delay: "0s" },
+              { src: "https://images.unsplash.com/photo-1668119064420-fb738fb05e32", alt: "Anime Karakterleri", delay: "0.2s" },
+              { src: "https://images.unsplash.com/flagged/photo-1572491259205-506c425b45c3", alt: "Anime Kız", delay: "0.4s" },
+              { src: "https://images.unsplash.com/photo-1668119065964-8e78fddc5dfe", alt: "Koleksiyon", delay: "0.6s" }
+            ].map((image, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500/20 to-violet-500/20 backdrop-blur-sm border border-white/20 hover:border-white/40 transition-all duration-500 animate-fade-in-up"
+                style={{ animationDelay: image.delay }}
+              >
+                <img 
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-white font-semibold text-sm">{image.alt}</p>
+                  </div>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-violet-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Floating Elements */}
+          <div className="absolute top-10 left-10 text-4xl opacity-20 animate-bounce" style={{ animationDelay: '1s' }}>🎭</div>
+          <div className="absolute top-20 right-20 text-3xl opacity-20 animate-bounce" style={{ animationDelay: '1.5s' }}>🎬</div>
+          <div className="absolute bottom-10 left-20 text-5xl opacity-20 animate-bounce" style={{ animationDelay: '2s' }}>⭐</div>
         </div>
       </section>
 
