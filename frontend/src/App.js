@@ -172,10 +172,7 @@ const LandingPage = () => {
       {/* Header */}
       <header className="relative z-10 flex justify-between items-center p-6 backdrop-blur-sm bg-black/20 border-b border-gray-700/30">
         <div className="flex items-center">
-          <div className="relative">
-            <h1 className="text-3xl font-bold text-white logo-glow-dark">ÇizgiHub</h1>
-            <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-400 rounded-lg blur opacity-25 animate-pulse"></div>
-          </div>
+          <h1 className="text-3xl font-bold text-white logo-glow-dark">ÇizgiHub</h1>
         </div>
         <div className="space-x-4 flex items-center">
           <button
