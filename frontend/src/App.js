@@ -18,29 +18,41 @@ const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.get(`${API}/auth/me`, {
-        withCredentials: true
+        headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data);
     } catch (error) {
       console.log('Not authenticated');
+      localStorage.removeItem('token');
     } finally {
       setLoading(false);
     }
   };
 
-  const login = (sessionToken, userData) => {
-    document.cookie = `session_token=${sessionToken}; max-age=604800; path=/`;
+  const login = (token, userData) => {
+    localStorage.setItem('token', token);
     setUser(userData);
   };
 
   const logout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      const token = localStorage.getItem('token');
+      if (token) {
+        await axios.post(`${API}/auth/logout`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }
-    document.cookie = 'session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem('token');
     setUser(null);
   };
 
